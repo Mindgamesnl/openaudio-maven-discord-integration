@@ -37,11 +37,11 @@ async function run() {
 }
 
 async function buildReports(mvnErr) {
-	analysis.start(false, './plugin/', err).then((report) => {
+	analysis.start('./plugin/', err).then((report) => {
         webhook.send(id, token, repository + " (plugin)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
     }, err => core.setFailed(err));
 
-	analysis.start(false './module-src/vistas-server/', err).then((report) => {
+	analysis.start('./module-src/vistas-server/', err).then((report) => {
         webhook.send(id, token, repository + " (vistas-server)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
     }, err => core.setFailed(err));
 
