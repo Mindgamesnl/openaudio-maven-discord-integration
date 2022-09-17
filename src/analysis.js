@@ -3,7 +3,7 @@ const xml = require('xml-library');
 
 module.exports.start = test;
 
-function test(skip, origin, knownError) {
+function test(origin, knownError) {
 	aggregate(knownError, origin)
 }
 

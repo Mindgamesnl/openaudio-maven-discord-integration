@@ -27,10 +27,6 @@ async function run() {
 	// build it once, then do the analysis twice
 	console.log("Running 'mvn install'...");
 	var args = ["install", "-B"];
-	if (skip) {
-		args.push("-DskipTests");
-	}
-
 	var maven = child_process.spawn("mvn", args, { shell: true });
 
 	maven.childProcess.stdout.on('data', data => process.stdout.write(data.toString('utf8')));
@@ -41,11 +37,11 @@ async function run() {
 }
 
 async function buildReports(mvnErr) {
-	analysis.start(isSkipped(payload.head_commit), './plugin/', err).then((report) => {
+	analysis.start(false, './plugin/', err).then((report) => {
         webhook.send(id, token, repository + " (plugin)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
     }, err => core.setFailed(err));
 
-	analysis.start(isSkipped(payload.head_commit), './module-src/vistas-server/', err).then((report) => {
+	analysis.start(false './module-src/vistas-server/', err).then((report) => {
         webhook.send(id, token, repository + " (vistas-server)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
     }, err => core.setFailed(err));
 
