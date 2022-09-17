@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
+const child_process = require('child-process-promise');
 
 const analysis = require('../src/analysis.js');
 const webhook = require('../src/discord.js');
@@ -23,13 +24,31 @@ async function run() {
     const id = core.getInput("id");
     const token = core.getInput("token");
 
-	await analysis.start(isSkipped(payload.head_commit), './plugin/').then((report) => {
+	// build it once, then do the analysis twice
+	console.log("Running 'mvn install'...");
+	var args = ["install", "-B"];
+	if (skip) {
+		args.push("-DskipTests");
+	}
+
+	var maven = child_process.spawn("cd " + origin + " && mvn", args, { shell: true });
+
+	maven.childProcess.stdout.on('data', data => process.stdout.write(data.toString('utf8')));
+	maven.childProcess.stderr.on('data', data => process.stdout.write(data.toString('utf8')));
+
+	// await its result
+	maven.then(() => buildReports(null), buildReports);
+}
+
+async function buildReports(mvnErr) {
+	analysis.start(isSkipped(payload.head_commit), './plugin/', err).then((report) => {
         webhook.send(id, token, repository + " (plugin)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
     }, err => core.setFailed(err));
 
-	await analysis.start(isSkipped(payload.head_commit), './module-src/vistas-server/').then((report) => {
+	analysis.start(isSkipped(payload.head_commit), './module-src/vistas-server/', err).then((report) => {
         webhook.send(id, token, repository + " (vistas-server)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
     }, err => core.setFailed(err));
+
 }
 
 try {

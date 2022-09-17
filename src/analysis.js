@@ -1,22 +1,10 @@
-const child_process = require('child-process-promise');
 const fs = require('fs').promises;
 const xml = require('xml-library');
 
 module.exports.start = test;
 
-function test(skip, origin) {
-	console.log("Running 'mvn install'...");
-	var args = ["install", "-B"];
-	if (skip) {
-		args.push("-DskipTests");
-	}
-
-	var maven = child_process.spawn("cd " + origin + " && mvn", args, { shell: true });
-
-	maven.childProcess.stdout.on('data', data => process.stdout.write(data.toString('utf8')));
-	maven.childProcess.stderr.on('data', data => process.stdout.write(data.toString('utf8')));
-
-	return maven.then(() => aggregate(null, origin), (err) => aggregate(err, origin));
+function test(skip, origin, knownError) {
+	aggregate(knownError, origin)
 }
 
 function aggregate(err = undefined, origin) {
