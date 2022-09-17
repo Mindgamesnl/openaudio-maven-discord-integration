@@ -1,3 +1,7 @@
+> This is a fork for OpenAudioMc
+> Adding specific support for our
+> sub-modules
+
 # Fancier Discord Webhook
 This GitHub Action can produce fancy and more meaningful discord messages for your commits.
 <br>It includes Test results and coverage.

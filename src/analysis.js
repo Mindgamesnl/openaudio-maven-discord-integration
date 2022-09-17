@@ -4,14 +4,14 @@ const xml = require('xml-library');
 
 module.exports.start = test;
 
-function test(skip) {
+function test(skip, origin) {
 	console.log("Running 'mvn test'...");
 	var args = ["test", "-B"];
 	if (skip) {
 		args.push("-DskipTests");
 	}
 
-	var maven = child_process.spawn("mvn", args, { shell: true });
+	var maven = child_process.spawn("cd " + origin + " && mvn", args, { shell: true });
 
 	maven.childProcess.stdout.on('data', data => process.stdout.write(data.toString('utf8')));
 	maven.childProcess.stderr.on('data', data => process.stdout.write(data.toString('utf8')));

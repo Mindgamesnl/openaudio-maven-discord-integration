@@ -23,7 +23,11 @@ async function run() {
     const id = core.getInput("id");
     const token = core.getInput("token");
 
-	analysis.start(isSkipped(payload.head_commit)).then((report) => {
+	analysis.start(isSkipped(payload.head_commit), './plugin/').then((report) => {
+        webhook.send(id, token, repository, branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
+    }, err => core.setFailed(err));
+
+	analysis.start(isSkipped(payload.head_commit), './module-src/vistas-server/').then((report) => {
         webhook.send(id, token, repository, branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
     }, err => core.setFailed(err));
 }
