@@ -16,10 +16,10 @@ function test(skip, origin) {
 	maven.childProcess.stdout.on('data', data => process.stdout.write(data.toString('utf8')));
 	maven.childProcess.stderr.on('data', data => process.stdout.write(data.toString('utf8')));
 
-	return maven.then(() => aggregate(), aggregate);
+	return maven.then(() => aggregate(origin), aggregate);
 }
 
-function aggregate(err) {
+function aggregate(err, origin) {
 	console.log("Aggregating test results...");
 	console.log(err);
 
@@ -28,7 +28,7 @@ function aggregate(err) {
 	}
 
 	return new Promise((resolve, reject) => {
-		Promise.all([getTestResults('surefire-reports'), getTestResults('failsafe-reports'), getCoverage('site/jacoco/jacoco.xml')]).then((results) => {
+		Promise.all([getTestResults(origin + 'target/surefire-reports'), getTestResults(origin + 'target/failsafe-reports'), getCoverage(origin + 'target/site/jacoco/jacoco.xml')]).then((results) => {
 			evaluation.tests = results[0].concat(results[1]);
 			evaluation.coverage = results[2];
 
@@ -47,8 +47,8 @@ function aggregate(err) {
 
 function getCoverage(path) {
 	return new Promise((resolve, reject) => {
-		fs.access("./target/" + path).then(() => {
-			fs.readFile("./target/" + path, "UTF-8").then((data) => {
+		fs.access(path).then(() => {
+			fs.readFile(path, "UTF-8").then((data) => {
 				xml.promises.fromXML(data).then((xml) => {
 					resolve(calculateCoverage(xml));
 				}, (err) => {
@@ -83,7 +83,7 @@ function calculateCoverage(xml) {
 
 function getTestResults(path) {
 	return new Promise((resolve, reject) => {
-		fs.readdir("./target/" + path, { withFileTypes: true }).then((files) => {
+		fs.readdir(path, { withFileTypes: true }).then((files) => {
 			var promises = [];
 
 			for (var i in files) {
@@ -91,13 +91,13 @@ function getTestResults(path) {
 
 				if (file.isFile() && file.name.startsWith("TEST-") && file.name.endsWith(".xml")) {
 					console.log(`Found test file ${file.name}`);
-					promises.push(fs.readFile("./target/" + path + "/" + file.name, "UTF-8"));
+					promises.push(fs.readFile(path + "/" + file.name, "UTF-8"));
 				}
 			}
 			console.log(`> Found ${promises.length} test report(s)`);
 			readTestSuites(promises).then(resolve);
 		}, (err) => {
-			console.log(`Could not find directory '${'/target/' + path}'`);
+			console.log(`Could not find directory '${path}'`);
 			resolve([]);
 		});
 	});
