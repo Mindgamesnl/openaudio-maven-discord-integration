@@ -6,7 +6,7 @@ module.exports.start = test;
 
 function test(origin) {
 	console.log("Running 'mvn install'...");
-	var args = ["install", "-B"];
+	var args = ["install", "-Dmaven.repo.local=./.m2/repository"];
 
 	var maven = child_process.spawn("cd " + origin + " && mvn", args, { shell: true });
 
