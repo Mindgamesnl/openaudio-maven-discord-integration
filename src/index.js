@@ -37,7 +37,7 @@ async function run() {
 	maven.childProcess.stderr.on('data', data => process.stdout.write(data.toString('utf8')));
 
 	// await its result
-	maven.then(() => buildReports(null), buildReports);
+	maven.then(() => buildReports(undefined), buildReports);
 }
 
 async function buildReports(mvnErr) {
