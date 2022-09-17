@@ -24,16 +24,16 @@ async function run() {
     const id = core.getInput("id");
     const token = core.getInput("token");
 
-	await analysis.start('./plugin/', err).then((report) => {
+	await analysis.start('./plugin/').then((report) => {
         webhook.send(id, token, repository + " (plugin)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
     }, err => core.setFailed(err));
 
 
-	await analysis.start('./module-src/vistas-client/', err).then((report) => {
+	await analysis.start('./module-src/vistas-client/').then((report) => {
         webhook.send(id, token, repository + " (vistas-client)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
     }, err => core.setFailed(err));
 
-	await analysis.start('./module-src/vistas-server/', err).then((report) => {
+	await analysis.start('./module-src/vistas-server/').then((report) => {
         webhook.send(id, token, repository + " (vistas-server)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
     }, err => core.setFailed(err));
 }
