@@ -6,7 +6,7 @@ module.exports.start = test;
 
 function test(origin) {
 	console.log("Running 'mvn install'...");
-	var args = ["test", "-B"];
+	var args = ["install", "-B"];
 
 	var maven = child_process.spawn("cd " + origin + " && mvn", args, { shell: true });
 

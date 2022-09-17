@@ -24,27 +24,18 @@ async function run() {
     const id = core.getInput("id");
     const token = core.getInput("token");
 
-	// build it once, then do the analysis twice
-	console.log("Running 'mvn install'...");
-	var args = ["install", "-B"];
-	var maven = child_process.spawn("mvn", args, { shell: true });
+	await analysis.start('./plugin/', err).then((report) => {
+        webhook.send(id, token, repository + " (plugin)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
+    }, err => core.setFailed(err));
 
-	maven.childProcess.stdout.on('data', data => process.stdout.write(data.toString('utf8')));
-	maven.childProcess.stderr.on('data', data => process.stdout.write(data.toString('utf8')));
 
-	// await its result
-	maven.then(() => buildReports(undefined), buildReports);
-}
+	await analysis.start('./module-src/vistas-client/', err).then((report) => {
+        webhook.send(id, token, repository + " (vistas-client)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
+    }, err => core.setFailed(err));
 
-async function buildReports() {
-	analysis.start('./plugin/', err).then((report) => {
-        webhook.send(id, token, repository + " (plugin)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(mvnErr.message));
-    }, err => core.setFailed(mvnErr));
-
-	analysis.start('./module-src/vistas-server/', err).then((report) => {
-        webhook.send(id, token, repository + " (vistas-server)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(mvnErr.message));
-    }, err => core.setFailed(mvnErr));
-
+	await analysis.start('./module-src/vistas-server/', err).then((report) => {
+        webhook.send(id, token, repository + " (vistas-server)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
+    }, err => core.setFailed(err));
 }
 
 try {
