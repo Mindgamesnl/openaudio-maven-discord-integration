@@ -36,14 +36,14 @@ async function run() {
 	maven.then(() => buildReports(undefined), buildReports);
 }
 
-async function buildReports(mvnErr) {
+async function buildReports() {
 	analysis.start('./plugin/', err).then((report) => {
-        webhook.send(id, token, repository + " (plugin)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
-    }, err => core.setFailed(err));
+        webhook.send(id, token, repository + " (plugin)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(mvnErr.message));
+    }, err => core.setFailed(mvnErr));
 
 	analysis.start('./module-src/vistas-server/', err).then((report) => {
-        webhook.send(id, token, repository + " (vistas-server)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(err.message));
-    }, err => core.setFailed(err));
+        webhook.send(id, token, repository + " (vistas-server)", branch, payload.compare, commits, size, report).catch(err => core.setFailed(mvnErr.message));
+    }, err => core.setFailed(mvnErr));
 
 }
 
