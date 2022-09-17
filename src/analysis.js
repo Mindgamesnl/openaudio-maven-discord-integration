@@ -5,8 +5,8 @@ const xml = require('xml-library');
 module.exports.start = test;
 
 function test(skip, origin) {
-	console.log("Running 'mvn test'...");
-	var args = ["test", "-B"];
+	console.log("Running 'mvn install'...");
+	var args = ["install", "-B"];
 	if (skip) {
 		args.push("-DskipTests");
 	}
@@ -16,15 +16,15 @@ function test(skip, origin) {
 	maven.childProcess.stdout.on('data', data => process.stdout.write(data.toString('utf8')));
 	maven.childProcess.stderr.on('data', data => process.stdout.write(data.toString('utf8')));
 
-	return maven.then(() => aggregate(origin), aggregate);
+	return maven.then(() => aggregate(null, origin), (err) => aggregate(err, origin));
 }
 
-function aggregate(err, origin) {
+function aggregate(err = undefined, origin) {
 	console.log("Aggregating test results...");
 	console.log(err);
 
 	var evaluation = {
-		status: (err ? "FAILURE": "SUCCESS")
+		status: (err != undefined ? "FAILURE": "SUCCESS")
 	}
 
 	return new Promise((resolve, reject) => {
